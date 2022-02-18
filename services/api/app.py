@@ -1,36 +1,59 @@
+from datetime import datetime
+import json
+import os
+import pickle
 from aiohttp import web
-import mlflow
+from pandas import DataFrame
+from pymongo import MongoClient
+from bson.json_util import dumps
 
-mlflow.set_tracking_uri("http://localhost:5000")
+CONNECTION_STRING = 'mongodb://' + os.environ.get("MONGODB_USERNAME", "admin") + ':' + os.environ.get("MONGODB_PASSWORD", "admin") + '@' + os.environ.get("MONGODB_HOSTNAME", "localhost") + ':27017'
+COLLECTION = os.environ.get("MONGODB_DATABASE", "onboard")
 
-logged_model = 'models:/model/Production'
-loaded_model = mlflow.pyfunc.load_model(logged_model)
+__model = None
+__db = None
+
+def get_model():
+    global __model
+    if __model is None:
+        with open(os.path.dirname(__file__)+'/model_pkl', 'rb') as f:
+            __model = pickle.load(f)
+    return __model
 
 
-async def handle(request):
-    name = request.match_info.get('name', "Anonymous")
-    text = "Hello, " + name
-    return web.Response(text=text)
+def get_database(collection):
+    global __db
+    if __db is None:
+        __db = MongoClient(CONNECTION_STRING)
+    return __db[collection]
 
-async def wshandle(request):
-    ws = web.WebSocketResponse()
-    await ws.prepare(request)
 
-    async for msg in ws:
-        if msg.type == web.WSMsgType.text:
-            await ws.send_str("Hello, {}".format(msg.data))
-        elif msg.type == web.WSMsgType.binary:
-            await ws.send_bytes(msg.data)
-        elif msg.type == web.WSMsgType.close:
-            break
+async def results(request):
+    results = list(get_database(COLLECTION).requests.find())
+    return web.json_response(json.loads(dumps(results)))
 
-    return ws
 
+async def predict(request):
+    data = await request.json()
+    values = list(data.values())
+    for d in data:
+        data[d] = [data.get(d)]
+    dataframe = DataFrame(data)
+    model = get_model()
+    result = model.predict(dataframe)
+    data = {
+        "values": values,
+        "prediction_name": COLLECTION,
+        "prediction": result[0],
+        "create_at": str(datetime.now())
+    }
+    x = get_database(COLLECTION).onboard_classifier.insert_one(data)
+    response_obj = {'id': str(x.inserted_id)}
+    return web.json_response(response_obj, status=200)
 
 app = web.Application()
-app.add_routes([web.get('/', handle),
-                web.get('/echo', wshandle),
-                web.get('/{name}', handle)])
+app.add_routes([web.get('/results', results),
+                web.post('/predict', predict)])
 
 if __name__ == '__main__':
     web.run_app(app)
