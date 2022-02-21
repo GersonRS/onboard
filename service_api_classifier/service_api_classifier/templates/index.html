@@ -1,0 +1,58 @@
+{% extends "layout/base.html" %} {% block main %}
+<table class="table">
+    <thead>
+        <tr>
+          <th><abbr title="Identification">id</abbr></th>
+          <th><abbr title="Prediction name">prediction_name</abbr></th>
+          <th><abbr title="Prediction">prediction</abbr></th>
+          <th><abbr title="Create_at">create_at</abbr></th>
+          <th>values</th>
+          <th>Actions</th>
+        </tr>
+    </thead>
+    <tfoot>
+        <tr>
+            <th><abbr title="Identification">id</abbr></th>
+            <th><abbr title="Prediction name">prediction_name</abbr></th>
+            <th><abbr title="Prediction">prediction</abbr></th>
+            <th><abbr title="Create_at">create_at</abbr></th>
+            <th>values</th>
+            <th>Actions</th>
+        </tr>
+    </tfoot>
+    <tbody>
+        {% for result in results %}
+        <tr>
+            <th>{{result._id}}</th>
+            <td>{{result.prediction_name}}</td>
+            <td>{{result.prediction}}</td>
+            <td>{{result.create_at[:11]}}</td>
+            <td>
+              {% for value in result['values'] %}
+                {{value}}
+              {% endfor %}
+            </td>
+            <td>
+                <div class="field has-addons">
+                    <p class="control">
+                        <a class="button">
+                            <span class="icon is-small">
+                                <i class="far fa-edit"></i>
+                            </span>
+                        </a>
+                    </p>
+                    <p class="control">
+                        <a class="button">
+                            <span class="icon is-small"
+                                ><i class="far fa-trash-alt"></i
+                            ></span>
+                        </a>
+                    </p>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a class="button is-link" href="{{ url('create') }}" role="button">Create a new Predict</a>
+{% endblock %}

@@ -1,0 +1,7 @@
+aiohttp==3.8.1
+aiohttp_jinja2==1.5
+trafaret_config==2.0.2
+markdown2==2.4.2
+pandas==1.4.1
+pymongo==3.12.3
+scikit-learn==1.0.2

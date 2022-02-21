@@ -1,0 +1,36 @@
+{% extends "layout/base.html" %} {% block main %}
+<form action="{{ url('store') }}" method="post" accept-charset="utf-8" enctype="application/x-www-form-urlencoded">
+    <fieldset>
+        <div class="field">
+            <label class="label">Sepal Length</label>
+            <div class="control">
+                <input class="input" type="number" name="sepal.length" placeholder="0.00" step="0.1"/>
+            </div>
+        </div>
+        <div class="field">
+            <label class="label">Sepal Width</label>
+            <div class="control">
+                <input class="input" type="number" name="sepal.width" placeholder="0.00" step="0.1"/>
+            </div>
+        </div>
+        <div class="field">
+            <label class="label">Petal Length</label>
+            <div class="control">
+                <input class="input" type="number" name="petal.length" placeholder="0.00" step="0.1"/>
+            </div>
+        </div>
+        <div class="field">
+            <label class="label">Petal Width</label>
+            <div class="control">
+                <input class="input" type="number" name="petal.width" placeholder="0.00" step="0.1"/>
+            </div>
+        </div>
+
+        <div class="field is-grouped">
+            <div class="control">
+                <button class="button is-link" type="submit">Submit</button>
+            </div>
+        </div>
+    </fieldset>
+</form>
+{% endblock %}
