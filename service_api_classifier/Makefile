@@ -4,5 +4,10 @@ PROJECT_NAME=service_api_classifier
 adev:
 	adev runserver ./$(PROJECT_NAME)/__main__.py -p 8080
 
-install:
-	pip install --no-cache-dir -e .
+## Runs application with specified postgres and redis.
+wait_resources:
+	python -m $(PROJECT_NAME).utils.wait_script
+
+## Runs application with specified postgres and redis.
+run-client-grpc:
+	python -m $(PROJECT_NAME).utils.predict_client

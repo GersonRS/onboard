@@ -1,4 +1,5 @@
-PROJECT_NAME=service_api_classifier
+PROJECT_SERVE=service_api_classifier
+PROJECT_GRPC=processing
 TIME=60
 
 # colors
@@ -15,11 +16,11 @@ all: run
 
 ## Runs application. Builds, creates, starts, and attaches to containers for a service. | Common
 run:
-	@docker-compose up $(PROJECT_NAME)
+	@docker-compose up $(PROJECT_SERVE)
 
 ## Rebuild service_api_classifier container
 build:
-	@docker-compose build $(PROJECT_NAME)
+	@docker-compose build $(PROJECT_SERVE)
 
 ## Stops application. Stops running container without removing them.
 stop:
@@ -29,17 +30,20 @@ stop:
 clean:
 	@docker-compose down
 
+docker-clean:
+	@docker system prune -f
+
 ## Runs command `bash` commands in docker container.
 bash:
-	@docker exec -it $(PROJECT_NAME) bash
+	@docker exec -it $(PROJECT_SERVE) bash
 
 ## Upgrade your python's dependencies:
 upgrade:
-	docker-compose run --rm $(PROJECT_NAME) python3 -m $(PROJECT_NAME).utils.check-requirements
+	docker-compose run --rm $(PROJECT_SERVE) python3 -m $(PROJECT_SERVE).utils.check-requirements
 
 ## Create profile sampling of application.
 profile:
-	@docker exec -it $(PROJECT_NAME) py-spy record -d $(TIME) -o $(PROJECT_NAME)_profile.svg --pid 7
+	@docker exec -it $(PROJECT_SERVE) py-spy record -d $(TIME) -o $(PROJECT_SERVE)_profile.svg --pid 9
 
 # Help
 
@@ -69,29 +73,19 @@ help:
 	{ lastLine = $$0 }' $(MAKEFILE_LIST)
 	@echo ''
 
-# Docs
-
-## Generate html documentation. | Documentation
-doc:
-	@docker-compose run --rm $(PROJECT_NAME) make _doc
-
-_doc:
-	@doc8 docs
-	@cd docs && make html
-
 # Linters & tests
 
 ## Formats code with `black`. | Linters
 black:
-	@docker-compose run --rm $(PROJECT_NAME) black $(PROJECT_NAME) --exclude $(PROJECT_NAME)/migrations -l 79
+	@docker-compose run --rm $(PROJECT_SERVE) black $(PROJECT_SERVE) --exclude $(PROJECT_SERVE)/migrations -l 79
 
 ## Checks types with `mypy`.
 mypy:
-	@docker-compose run --rm $(PROJECT_NAME) mypy $(PROJECT_NAME)
+	@docker-compose run --rm $(PROJECT_SERVE) mypy $(PROJECT_SERVE)
 
 ## Formats code with `flake8`.
 lint:
-	@docker-compose run --rm $(PROJECT_NAME) flake8 $(PROJECT_NAME)
+	@docker-compose run --rm $(PROJECT_SERVE) flake8 $(PROJECT_SERVE)
 
 ## Runs tests. | Tests
 test: lint
@@ -100,7 +94,8 @@ test: lint
 
 ## Runs application with development config.
 adev:
-	adev runserver ./$(PROJECT_NAME)/__main__.py -p 8080
+	adev runserver ./$(PROJECT_SERVE)/__main__.py -p 8080
 
-install:
-	pip install --no-cache-dir -e .
+## Runs application with specified postgres and redis.
+wait_resources:
+	python3 -m $(PROJECT_SERVE).utils.wait_script

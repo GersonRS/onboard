@@ -2,3 +2,11 @@
 app:
   host: 0.0.0.0
   port: 8080
+
+# mongo
+mongo:
+  user: admin
+  password: admin
+  database: onboard-classifier
+  port: 27017
+  host: mongo

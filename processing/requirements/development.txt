@@ -1,0 +1,8 @@
+-r production.txt
+
+mypy
+flake8
+pytest
+pytest-cov
+pytest-grpc
+black

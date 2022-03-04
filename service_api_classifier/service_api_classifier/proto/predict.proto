@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package predict;
+
+// The predict service definition.
+service Predict {
+    // Predict back reply.
+    rpc Predict (PredictRequest) returns (PredictResult) {}
+}
+
+// The request message containing the user's message.
+message PredictRequest {
+    repeated float request = 1;
+}
+
+// The response message containing the original message.
+message PredictResult {
+    string message = 1;
+}

@@ -7,6 +7,17 @@ import trafaret
 from aiohttp import web
 from trafaret_config import commandline
 
+CONNECTION_STRING = (
+    "mongodb://"
+    + os.environ.get("MONGODB_USERNAME", "admin")
+    + ":"
+    + os.environ.get("MONGODB_PASSWORD", "admin")
+    + "@"
+    + os.environ.get("MONGODB_HOSTNAME", "localhost")
+    + ":27017"
+)
+COLLECTION = os.environ.get("MONGODB_DATABASE", "onboard-classifier")
+
 
 PATH = pathlib.Path(__file__).parent.parent.parent
 settings_file = os.environ.get("SETTINGS_FILE", "api.dev.yml")
@@ -19,6 +30,15 @@ CONFIG_TRAFARET = trafaret.Dict(
             {
                 "host": trafaret.String(),
                 "port": trafaret.Int(),
+            }
+        ),
+        trafaret.Key("mongo"): trafaret.Dict(
+            {
+                "host": trafaret.String(),
+                "port": trafaret.Int(),
+                "user": trafaret.String(),
+                "password": trafaret.String(),
+                "database": trafaret.String(),
             }
         ),
     }
